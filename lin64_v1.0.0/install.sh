@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [[ $1 == "" ]]; then
+  echo
+  echo USAGE: $0 [-u] osquery.tar.gz osquery.conf 
+  echo -e "\t To install: ARG1 must be path to .tar.gz of osquery package. ARG2 must be path to config file"
+  echo -e "\t To uninstall: ARG1 must be '-u'"
+  echo
+  exit
+fi
+
 # Run as root to install CEDAR
 if [[ $EUID > 0 ]]; then 
 	echo "Please run as root to install osquery"
@@ -31,17 +40,17 @@ fi
 
 echo "Extracting osquery..."
 
-mkdir osquery
-tar -xzvf osquery.tar.gz -C ./osquery
+mkdir /tmp/osquery
+tar -xzvf $1 -C /tmp/osquery
 
 echo "Installing osquery..."
-cp -R osquery/* /
-cp osquery.conf /etc/osquery/osquery.conf
+cp -R /tmp/osquery/* /
+cp $2 /etc/osquery/osquery.conf
 
 systemctl enable osqueryd.service
 systemctl start osqueryd.service
 
 echo "Cleaning up..."
-rm -rf osquery
+rm -rf /tmp/osquery
 
 echo "Finished installing osquery."
